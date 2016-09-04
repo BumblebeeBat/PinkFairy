@@ -1,0 +1,2 @@
+-module(reveal_decision_tx).
+-export([]).
