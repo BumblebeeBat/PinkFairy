@@ -3,7 +3,8 @@
 
 -record(acc, {balance = 0, %amount of money you have
 	      nonce = 0, %increments with every tx you put on the chain. 
-	      height = 0, 
+	      height = 0,  %The last height at which you paid the tax
+	      fork_height = 0, %The last height at which you selected a fork.
 	      revealed = 0, 
 	      addr = []}). %loc is our location in the accounts trie.
 -record(update, {loc = -1, balance = 0, nonce = 0, height, revealed}).

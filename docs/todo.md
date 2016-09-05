@@ -1,0 +1,1 @@
+channel_rent explained in channel_rent.md

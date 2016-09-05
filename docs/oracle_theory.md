@@ -8,3 +8,7 @@ If a state change destroys more value than it creates, the majority will reject 
 So each of the 2 consensus mechanisms are ultimately measuring the opinion of the same distribution of users.
 
 Either 1 consensus mechanism is better for asking the opinion of the distribution, or the other is better. There is no reason to have both.
+
+
+The DAO, a controversial dapp that was built onto Ethereum was a type of oracle. It made a decision that the validators disagreed with. So the validators forked the protocol to stop the DAO.
+Having 2 consensus mechanisms at once is bad, because they can disagree.
