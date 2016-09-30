@@ -22,6 +22,9 @@ txs() -> gen_server:call(?MODULE, txs).
 digest([], _, Channels, Accounts, TotalCoins, SecretHashes, _) -> {Channels, Accounts, TotalCoins, SecretHashes};
 digest([SignedTx|Txs], ParentKey, Channels, Accounts, TotalCoins, SecretHashes, NewHeight) ->
     true = sign:verify(SignedTx, Accounts),
+    trie:get(Key, ParentKey, ID),
+    true = verify:proof(ParentHash, Acc1, Proof1, CFG),
+    true = verify:proof(ParentHash, Acc2, Proof2, CFG),
     Tx = sign:data(SignedTx),
     {NewChannels, NewAccounts, NewTotalCoins, NewSecretHashes} = 
 	case element(1, Tx) of
