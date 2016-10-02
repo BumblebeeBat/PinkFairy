@@ -1,12 +1,13 @@
 -module(account).
 -export([serialize/1,deserialize/1,combine_updates/2,apply_update/2,new_account/4,new_update/5,test/0]).
 
+%We probably don't need "addr" in the acc record.
+
 -record(acc, {balance = 0, %amount of money you have
 	      nonce = 0, %increments with every tx you put on the chain. 
 	      height = 0,  %The last height at which you paid the tax
-	      fork_height = 0, %The last height at which you selected a fork.
-	      revealed = 0, 
-	      addr = []}). %loc is our location in the accounts trie.
+	      revealed = 0, %The last entropy you revealed. Every new entropy must be the inverse hash of the previous.
+	      addr = []}). %addr is the hash of the public key we use to spend money.
 -record(update, {loc = -1, balance = 0, nonce = 0, height, revealed}).
 %revealed is the most recently revealed entropy. Every revealed entropy needs to be the inverse hash of the previously revealed entropy
 
@@ -114,7 +115,5 @@ test() ->
     A3 = apply_update(A2, U2),
     U3 = combine_updates(U1, U2),
     A3 = apply_update(A, U3).
-
-    
 
     

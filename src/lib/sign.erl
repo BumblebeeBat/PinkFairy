@@ -100,7 +100,7 @@ checksum(N, <<H:4, T/bitstring>>) ->
     checksum(N+H, <<T/bitstring>>);
 checksum(N, <<>>) ->
     M = N rem 16,
-    <<M:4>>.
+    <<M:8>>.
 
 %looks like 60,000,000 keys per second costs about $1 a month. https://en.bitcoin.it/wiki/Vanitygen
 %there are 2,600,000 seconds per month, so they can test 1.5*10^14 addresses for $1.
@@ -131,8 +131,8 @@ pubkey2address(P) ->
     S = T rem 5000,
     case S of
 	0 ->
-	    <<C:4>> = checksum(<<A:(?AddressEntropy)>>),
-	    D = <<C:4, A:(?AddressEntropy) >>,
+	    <<C:8>> = checksum(<<A:(?AddressEntropy)>>),
+	    D = <<C:8, A:(?AddressEntropy) >>,
 	    list_to_binary(base58:binary_to_base58(D));
 	_ ->
 	    {error, invalid_pubkey}

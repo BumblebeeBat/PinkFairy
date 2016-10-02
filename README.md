@@ -2,10 +2,6 @@ Bitcoin Donations: 1GbpRPE83Vjg73KFvTVZ4EnS2qNkiLY5TT
 
 A security vulnerability was found in Flying Fox. The goal of this project is to reuse the good parts of Flying Fox and to patch the security vulnerability.
 
-The major difference between this and Flying Fox is that there are now 2 steps to block verification. First a random jury of users are selected for each block. 
-
-Then a few blocks later everyone selects one of the paths to follow. The root hash of the merkle tree of everyone's signatures is written on the block. A group of the signers are selected using the random number generator, so we can get statistical assurance that the block is valid.
-
 https://github.com/BumblebeeBat/FlyingFox
 
 Goals of this project:
