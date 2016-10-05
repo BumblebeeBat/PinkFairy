@@ -11,7 +11,7 @@ So, you make a channel like this and both sign it.
 
 ```
 You have: 0, partner has: $2,
-contract has: $1500, contract code: "
+contract has: $1498, contract code: "
     The channel can only be closed 
     at this state if the market manager 
     has signed over a current trading 
