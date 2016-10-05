@@ -13,3 +13,5 @@ The advantage of having the compiler decide a different piece of memory for each
 Some computation moves to compile time, so the code is slightly faster.
 
 channel_rent explained in channel_rent.md
+
+The time limit until the channel can be closed should be a different number depending on who is closing the channel.

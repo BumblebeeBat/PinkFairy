@@ -35,3 +35,7 @@ contract has: $1500, contract code: "
 The goal here is to make sure that the market manager can only choose a price once. So that he sells the shares for the same price he is buying them for.
 Making sure that the market manager can't select 2 different prices is similar to making sure that the validators don't sign on contradictory forks.
 
+Between rounds of making trades, the market manager needs to wait a long time.
+He needs to close all the channels that can be closed at that price.
+If they are offline, he has to close the channel the slow way.
+Once the channels are closed, then he can select the next price for the next set of trades to close.
