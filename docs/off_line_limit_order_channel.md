@@ -10,9 +10,19 @@ You only want to make this purchase if the gold costs less than $1280 per ounce.
 So, you make a channel like this and both sign it.
 
 ```
-You have: 0, partner has: $2, contract has: $1500, contract code: "
-    The channel can only be closed at this state if the market manager has signed over a current trading price, and it is =< $1280 per ounce.
-    If you can show that the market manager signed over 2 final prices, then you can take all the money from the channel, and the market manager gets nothing. %this is similar to slasher-transaction in some bonded proof of stake protocols.
+You have: 0, partner has: $2,
+contract has: $1500, contract code: "
+    The channel can only be closed 
+    at this state if the market manager 
+    has signed over a current trading 
+    price, and it is =< $1280 per ounce.
+    If you can show that the market 
+    manager signed over 2 final prices, 
+    then you can take all the money 
+    from the channel, and the market 
+    manager gets nothing. 
+    % this is similar to slasher-transaction 
+    % in some bonded proof of stake protocols.
 
     Y = final price of gold per ounce that the market manager chose.
     X = 998 / Y,%this is the number of ounces of gold you own.
