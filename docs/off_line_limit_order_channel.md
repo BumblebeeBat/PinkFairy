@@ -39,3 +39,7 @@ Between rounds of making trades, the market manager needs to wait a long time.
 He needs to close all the channels that can be closed at that price.
 If they are offline, he has to close the channel the slow way.
 Once the channels are closed, then he can select the next price for the next set of trades to close.
+
+
+Another feature we want is for the market maker to have _multiple_ batches of trades, and to not get punished for releasing multiple prices.
+We want our trade to get included in the earliest batch possible. So if you can prove that the validator made an earlier batch that would have worked for you, you should be able to slash him.

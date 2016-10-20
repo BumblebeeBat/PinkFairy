@@ -22,10 +22,10 @@ Every address has a nonce that updates on each tx. To be valid, the tx must incl
 - vote
 - start_randomness
 - add_randomness
-- to_channel
+- channel_grow
 - channel_solo_stop
-- channel_timeout
 - channel_slash
+- channel_timeout
 - channel_team_close
 - channel_repo
 - oracle_commit
@@ -104,10 +104,12 @@ You know that your turn is coming up X blocks ahead of time.
 Every time you reveal randomness it needs to be the inverse hash of the previous randomness you revealed.
 Before you can reveal randomness, you need to publish the final hash of the chain and wait for finality.
 You can easily prove that you waited finality by refering to your account at an old height.
+So we should keep a copy of a proof from this height.
 This gives you a reward.
 
-# to_channel
+# channel_grow
 
+Has 2 signatures.
 Can increase the amount of money in the channel.
 Can change the default distribution of money.
 Can increase the channel nonce.
@@ -130,6 +132,7 @@ If you did not get slashed, and you waited at least delay since channel_solo_sto
 
 # channel_team_close
 
+Has 2 signatures
 This closes the channel.
 This tx says a final balance for each account.
 
