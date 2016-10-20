@@ -27,7 +27,3 @@ channel_size() ->
     ?ChannelSizeWithoutPadding + channel_padding().
 entropy_file() -> "data/entropy_file.db".
 
-%====== Below this line, you can edit the constants to customize functionality on your machine. =========
-
-trie_size() -> 100000.%This is the maximum number of things you can store in your trie. You need this to be big enough to store everything you want long-term, and it needs to be big enough to store all the updates made in any single block.
-%Warning, storing a single account can consume multiple units. Because it is a trie, and every step of the trie leading to your data is another unit.

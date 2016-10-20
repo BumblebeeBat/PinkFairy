@@ -1,14 +1,16 @@
 -module(account).
 -export([serialize/1,deserialize/1,combine_updates/2,apply_update/2,new_account/4,new_update/5,test/0]).
 
-%We probably don't need "addr" in the acc record.
-
 -record(acc, {balance = 0, %amount of money you have
 	      nonce = 0, %increments with every tx you put on the chain. 
 	      height = 0,  %The last height at which you paid the tax
 	      revealed = 0, %The last entropy you revealed. Every new entropy must be the inverse hash of the previous.
 	      addr = []}). %addr is the hash of the public key we use to spend money.
--record(update, {loc = -1, balance = 0, nonce = 0, height, revealed}).
+-record(update, {id = -1, 
+		 balance = 0, %how much money you gained
+		 nonce = 0, %how much to increment nonce
+		 height, 
+		 revealed}).
 %revealed is the most recently revealed entropy. Every revealed entropy needs to be the inverse hash of the previously revealed entropy
 
 new_account(Balance, Nonce, Height, Revealed) ->
@@ -49,8 +51,8 @@ deserialize(A) ->
     #acc{balance = B1, nonce = B2, height = B4, revealed = <<B5:HD>>, addr = <<B6:HD>>}.
     
 combine_updates(U1, U2) ->
-    Loc = U1#update.loc,
-    Loc = U2#update.loc,
+    Loc = U1#update.id,
+    Loc = U2#update.id,
     U1B = U1#update.balance,
     U2B = U2#update.balance,
     Balance = U1B + U2B,
@@ -62,16 +64,19 @@ combine_updates(U1, U2) ->
     U1R = U1#update.revealed,
     U2R = U2#update.revealed,
     Height = max(U1H, U2H),
+    H1 = U1#update.revealed, 
+    H2 = U2#update.revealed, 
+    H12 = trie_hash:doit(H1),
+    H22 = trie_hash:doit(H2),
     Revealed = 
-	if
-	    U1H > U2H ->
-		U2R ++ U1R;
-	    U2H > U1H ->
-		U1R ++ U2R
-	    end,
+	case
+	    H1 == H22 -> H1;
+	    H2 == H12 -> H2
+	end,
     #update{loc = Loc, balance = Balance, nonce = Nonce, height = Height, revealed = Revealed}.
     
-apply_update(Acc, U) ->
+apply_update(Acc, U, Vars) ->
+    AccountRent = variables:account_rent(Vars),
     B = Acc#acc.balance,
     N = Acc#acc.nonce,
     H = Acc#acc.height,
@@ -84,7 +89,7 @@ apply_update(Acc, U) ->
     true = UH > H,
     true = UN > 0,
     LR = hash_chain([R] ++ UR),
-    FB = B+UB,
+    FB = B+UB - (AccountRent * (UH - H)),
     true = FB > 0,
     %we should add a check to make sure it has more than the minimum balance.
     %its ok for accounts to have negative balance, we just need to make sure that the cost of creating an account is bigger than the reward for gabage collecting it.

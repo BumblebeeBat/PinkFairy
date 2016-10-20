@@ -25,6 +25,8 @@ init([Amount]) ->
     Children = [
 		{accounts_sup, {trie_sup, start_link, [constants:account_size(), KeyLength, constants:account_size(), accounts, Amount, hd]}, permanent, 5000, supervisor, [trie_sup]},
 		{channels_sup, {trie_sup, start_link, [constants:channel_size(), KeyLength, constants:channel_size(), channels, Amount, hd]}, permanent, 5000, supervisor, [trie_sup]}
+		{variables_sup, {trie_sup, start_link, [constants:variable_size(), KeyLength, constants:channel_size(), channels, Amount, hd]}, permanent, 5000, supervisor, [trie_sup]}
+		{census_sup, {trie_sup, start_link, [constants:census_size(), KeyLength, constants:channel_size(), channels, Amount, hd]}, permanent, 5000, supervisor, [trie_sup]}
 	       ] ++ child_maker(?keys),
     {ok, { {one_for_one, 5, 10}, Children} }.
 

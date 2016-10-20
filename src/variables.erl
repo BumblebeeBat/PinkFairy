@@ -4,8 +4,7 @@
 
 %these variables define how the consensus protocol works. At every height, the validators modify them slightly, so that the blockchain can adapt to its conditions.
 
--record(vars, {friction_friction,
-	       validator_participation_minimum,
+-record(vars, {validator_participation_minimum,
 	       census_participation_minimum,
 	       census_period,
 	       create_block_pow, 
@@ -18,7 +17,9 @@
 	       census_per_block,
 	       validators_per_block,
 	       account_rent,
-	       channel_rent}).
+	       channel_rent,
+	      %below this line isn't voted on.
+	       height}).
 list_to_vars(T) ->
     list_to_tuple([vars|T]).
 vars_to_list(V) ->
