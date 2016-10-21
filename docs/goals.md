@@ -16,9 +16,3 @@ Goals of this project:
 
 The decision to connect the oracle consensus to the blockchain consensus is controvertial, [I talk about it more here](oracle_theory.md)
 
-Look at how the DAO made Ethereum split into 2 pieces.
-This is because the outcome of where the DAO sent money wasn't being controlled by the same consensus mechanism as ethereum.
-So the majority of users who controled the consensus mechanism decided to do a fork.
-The DAO was a fancy kind of oracle which came to decisions based on the input of it's users.
-In order to avoid events like this, we need to make sure that the same distribution that controls the blockchain consensus should also control the oracle's decisions.
-
