@@ -9,29 +9,18 @@ sudo apt-get install unixodbc-dev
 sudo apt-get install g++
 sudo apt-get install git
 ```
-Next, download Flying Fox.
+Next, download Pink Fairy
+
+git clone https://github.com/BumblebeeBat/PinkFairy.git
+
+now you can go into the directory, and download the dependencies.
 
 ```
-#for linux
-wget https://github.com/BumblebeeBat/FlyingFox/archive/development.zip
-unzip development.zip
-#for mac, use curl.
-```
-Now you can go into the directory, and compile flying fox.
-
-```
-cd FlyingFox-development/
+cd PinkFairy
 sh install.sh
 ```
-Start your node with this script:
+Start the node with this script:
 
 ```
 sh start.sh
-```
-Then open this URL in your browser: http://localhost:3011/login.html
-
-When you are done, you can turn the node off by clicking "halt" in your browser, or by running this command in the flying fox command line interface:
-
-```
-flying_fox_sup:stop()
 ```

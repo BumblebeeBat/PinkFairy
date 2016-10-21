@@ -27,3 +27,7 @@ This is because the outcome of where the DAO sent money wasn't being controlled 
 So the majority of users who controled the consensus mechanism decided to do a fork.
 The DAO was a fancy kind of oracle which came to decisions based on the input of it's users.
 In order to avoid events like this, we need to make sure that the same distribution that controls the blockchain consensus should also control the oracle's decisions.
+
+[installation for ubuntu](docs/compile.md)
+
+[documentation](docs/README.md)
