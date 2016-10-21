@@ -3,7 +3,7 @@ The bad way to do this is to write a consensus mechanism on top of your consensu
 Consensus mechanisms are terribly complicated protocols, writing them inside of each other is difficult to do, and difficult to maintain.
 The good way to do this is to repurpose the one consensus mechanism to do both things.
 
-For any consensus mechanism, an important property is that the consensus state changes have majority of value-holder approval.
+In Pink Fairy, consensus state changes all have majority value-holder approval.
 If a state change destroys more value than it creates, the majority will reject it.
 So each of the 2 consensus mechanisms are ultimately measuring the opinion of the same distribution of users.
 
