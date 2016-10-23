@@ -11,7 +11,7 @@ Goals of this project:
 
 5 A marketplace with batch based trading at a single price should be built in the channels.
 
-6 The consensus mechanism should not be secured by any costly mechanism like POW or bonds.
+6 The consensus mechanism should not be secured by any costly mechanism like POW or bonds. Instead, the path of consensus should be determined by majority opinion of value-holders.
 
 
 The decision to connect the oracle consensus to the blockchain consensus is controvertial, [I talk about it more here](oracle_theory.md)
