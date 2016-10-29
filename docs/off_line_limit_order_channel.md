@@ -39,11 +39,11 @@ Making sure that the market manager can't select 2 different prices is similar t
 If the market maker can only choose one price, then we know he will choose the most optimal price.
 If he chooses the optimal price, he isn't changing his risk. He is earning a profit by taking a fee. This graph shows how if he selects the correct price the sells in red match the buys in black so he doesn't risk anything.
 
-![balanced trading](/batch_channel.png)
+![balanced trading](batch_channel.png "balanced")
 
 Here is what it would look like if the market maker choose the incorrect price. He ends up selling many more sells than he purchases. He takes on a lot of risk for very little reward.
 
-![unbalanced trading](/batch_channel_unbalanced.png)
+![unbalanced trading](batch_channel_unbalanced.png "unbalanced")
 
 
 Between rounds of making trades, the market manager needs to wait a long time.
