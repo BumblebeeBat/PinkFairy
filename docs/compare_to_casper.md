@@ -1,3 +1,15 @@
+All wasteful consnesus mechanisms ar built off these assumtions:
+
+*Finality needs to be fast.
+
+*The majority of money will be off-line during most finality periods.
+
+Since the majority is offline, some minority must guide consensus. To make it trustless, the minority needs to destroy a lot of value to do this.
+
+Pink Fairy does its computation off-chain in the channels. So fast finality is not important.
+Since fast finality is not important, we don't need to give control to any minority, and we don't need to destroy value.
+
+
 http://vitalik.ca/files/mauve_paper3.html
 
 We desire these goals:

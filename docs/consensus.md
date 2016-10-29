@@ -29,7 +29,7 @@ choice:
 
 
 what if an attacker stops us from knowing about some of the validator signatures that can be revealed?
-* maybe we should write how much money is controled by each branch on the branches of the trie. That way our random number generator can select exactly as many addresses as we need, and if some information is unavailable, we at least know that it exists.
+* we write how much money is controled by each branch on the branches of the trie. That way our random number generator can select exactly as many addresses as we need, and if some information is unavailable, we at least know that it exists.
 
 
 What strategy should the validators use to choose which block to sign next?

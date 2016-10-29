@@ -13,3 +13,7 @@ Each block needs a merkle root of the questions that have been asked. Questions 
 We need a way to query accounts by address. Making a key-based merkle patricia trie is probably too much work, instead we should give it an sql database linking each user name to an account id. The sql database for names is optional, only for nodes who want the ability to query any name.
 
 Maybe each user should store the ids-name combos for the people who he chats with or makes payments to most frequently. That way you can ask people in your friend circle and find out the id for your friend that way.
+
+We need a patricia trie that stores by arbitrary key. We need it for the naming system so that users can have unique names.
+
+Maybe we should delete old stuff from the oracle trie. Once all the bets are settled, the information doesn't matter. Maybe we will give them a month to close their bets.
