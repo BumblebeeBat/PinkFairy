@@ -7,7 +7,7 @@
 
 -module(txs).
 -behaviour(gen_server).
--export([start_link/0,code_change/3,handle_call/3,handle_cast/2,handle_info/2,init/1,terminate/2, dump/0,txs/0,digest/7,test/0]).
+-export([start_link/0,code_change/3,handle_call/3,handle_cast/2,handle_info/2,init/1,terminate/2, dump/0,txs/0,digest/4,test/0]).
 init(ok) -> {ok, []}.
 start_link() -> gen_server:start_link({local, ?MODULE}, ?MODULE, ok, []).
 code_change(_OldVsn, State, _Extra) -> {ok, State}.
@@ -19,37 +19,76 @@ handle_cast(dump, _) -> {noreply, []};
 handle_cast({add_tx, Tx}, X) -> {noreply, [Tx|X]}.
 dump() -> gen_server:cast(?MODULE, dump).
 txs() -> gen_server:call(?MODULE, txs).
-digest([], _, Channels, Accounts, TotalCoins, SecretHashes, _) -> {Channels, Accounts, TotalCoins, SecretHashes};
-digest([SignedTx|Txs], ParentKey, Channels, Accounts, TotalCoins, SecretHashes, NewHeight) ->
+to_lists([]) -> [];
+to_lists([H|T]) -> [[H]|to_lists(T)].
+sort_compress(L, Combine, Value) ->
+    L2 = to_lists(L),
+    sort_compress2(L2, Combine, Value).
+sort_compress2([X], _, _) -> X;
+sort_compress2(L, C, V) -> 
+    L2 = sort_compress3(L, C, V),
+    sort_compress2(L2, C, V).
+sort_compress3([L], _, _) -> [L];
+sort_compress3([], _, _) -> [];
+sort_compress3([A|[B|T]], Combine, Value) -> 
+    C = sort_compress_merge(A, B, [], Combine, Value),
+    [C|sort_compress3(T, Combine, Value)].
+sort_compress_merge(A, [], C, _, _) -> lists:reverse(A) ++ C;
+sort_compress_merge([], B, C, _, _) -> lists:reverse(B) ++ C;
+sort_compress_merge([H|T], [B|S], C, Combine, Value) -> 
+    V1 = Value(H),
+    V2 = Value(B),
+    D = hd(C),
+    V3 = Value(D),
+    {X, Y, Z} = if
+	V3 == V1-> 
+	    {T, [B|S], [Combine(D, H)|tl(C)]};
+	V2 == V1 -> 
+	    {[H|T], S, [Combine(D, B)|tl(C)]};
+	V1 > V2 -> {T, [B|S], [H|C]};
+	V1 < V2 -> {[H|T], S, [B|C]};
+	(V1 == V2) and (V3 == V1)-> 
+	    {T, [B|S], [Combine(H, D)|tl(C)]};
+	V1 == V2 ->
+	    {[Combine(H, B)|T], S, C}
+    end,
+    sort_compress_merge(X, Y, Z, Combine, Value).
+apply_updates([], MerkleRoot) -> MerkleRoot;
+apply_updates([H|T], Root) -> 
+    NewRoot = apply_update(H, Root),
+    apply_updates(T, NewRoot).
+apply_update(Stuff, Root) ->
+    %use the included proof to calculate the new root.
+    ok.
+    
+digest(Txs, Channels, Accounts, Variables) ->
+    {ChannelUpdates, AccountUpdates, VariableUpdates} = 
+	digest2(Txs, Channels, Accounts, Variables),
+    %The previous line should be parallelized, then the results
+    %appended before we start the sort_compress
+    CU = sort_compress(ChannelUpdates, 
+		       fun(X, Y) -> channel:combine_updates(X, Y) end, 
+		       fun(X) -> channel:id(X) end),
+    AU = sort_compress(Accounts, 
+		       fun(X, Y) -> account:combine_updates(X, Y) end,
+		       fun(X) -> account:id(X) end),
+    VU = sort_compress(Variables, 
+		       fun(X, Y) -> variables:combine_updates(X, Y) end,
+		       fun(X) -> variables:id(X) end),
+    {apply_updates(CU, Channels),
+     apply_updates(AU, Accounts),
+     apply_updates(VU, Variables)}.
+digest2(Txs, Channels, Accounts, Variables) ->    
+    digest2(Txs, Channels, Accounts, Variables, [], [], []).
+digest2([], _, _, _, CU, AU, VU) -> {CU, AU, VU};
+digest2([SignedTx|Txs], Channels, Accounts, Variables, CU, AU, VU) ->
     true = sign:verify(SignedTx, Accounts),
-    trie:get(Key, ParentKey, ID),
-    true = verify:proof(ParentHash, Acc1, Proof1, CFG),
-    true = verify:proof(ParentHash, Acc2, Proof2, CFG),
     Tx = sign:data(SignedTx),
-    {NewChannels, NewAccounts, NewTotalCoins, NewSecretHashes} = 
-	case element(1, Tx) of
-	    channel_funds_limit -> channel_funds_limit_tx:doit(Tx, ParentKey, Channels, Accounts, TotalCoins, SecretHashes, NewHeight);
-	    repo -> repo_tx:doit(Tx, ParentKey, Channels, Accounts, TotalCoins, SecretHashes, NewHeight);
-            sign_tx -> 
-		sign_tx:doit(Tx, Txs, ParentKey, Channels, Accounts, TotalCoins, SecretHashes, NewHeight);
-            ca -> create_account_tx:doit(Tx, ParentKey, Channels, Accounts, TotalCoins, SecretHashes, NewHeight);
-            spend -> spend_tx:doit(Tx, ParentKey, Channels, Accounts, TotalCoins, SecretHashes, NewHeight);
-            da -> delete_account_tx:doit(Tx, ParentKey, Channels, Accounts, TotalCoins, SecretHashes, NewHeight);
-            slasher_tx -> 
-		slasher_tx:doit(Tx, ParentKey, Channels, Accounts, TotalCoins, SecretHashes, NewHeight);
-            fork_slash_tx -> 
-		fork_slash_tx:doit(Tx, ParentKey, Channels, Accounts, TotalCoins, SecretHashes, NewHeight);
-            reveal -> reveal_tx:doit(Tx, ParentKey, Channels, Accounts, TotalCoins, SecretHashes);
-            tc -> to_channel_tx:doit(SignedTx, ParentKey, Channels, Accounts, TotalCoins, SecretHashes, NewHeight);
-            signed_cb -> channel_block_tx:doit(Tx, ParentKey, Channels, Accounts, TotalCoins, SecretHashes, NewHeight);
-            timeout -> channel_timeout_tx:doit(Tx, ParentKey, Channels, Accounts, TotalCoins, SecretHashes, NewHeight);
-            channel_slash -> channel_slash_tx:doit(Tx, ParentKey, Channels, Accounts, TotalCoins, SecretHashes, NewHeight);
-            channel_close -> channel_close_tx:doit(Tx, ParentKey, Channels, Accounts, TotalCoins, SecretHashes, NewHeight);
-	    reveal_tx -> reveal:doit(Tx, ParentKey, Channels, Accounts, TotalCoins, SecretHashes, NewHeight);
-            X -> 
-		io:fwrite(packer:pack(Tx)),
-		X=2
-        end,
-    digest(Txs, ParentKey, NewChannels, NewAccounts, NewTotalCoins, NewSecretHashes, NewHeight).
+    Type = element(1, Tx),
+    spawn(Type, doit, [Tx, Channels, Accounts, Variables, self()]),
+    receive 
+	{NewCus, NewAus, NewVUs} -> 
+	    digest2(SignedTxs, Channels, Accounts, CU++NewCUs, AU++NewAUs, VU++NewVUs)
+    end.
 
 test() -> 0.

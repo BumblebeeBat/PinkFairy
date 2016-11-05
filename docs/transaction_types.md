@@ -31,7 +31,9 @@ Every address has a nonce that updates on each tx. To be valid, the tx must incl
 - oracle_commit
 - oracle_died
 - oracle_publish
+- oracle_slash
 - oracle_reward
+- POW
 
 
 # Which tx types should be hashlockable?
@@ -166,3 +168,7 @@ This is the second step of the oracle mechanism. The event has occured in meat s
 # oracle_reward
 
 If the voters haven't changed the oracle's decision about the meatspace event, then the oracle can use this tx to get his safety deposit back.
+
+# POW
+
+This transaction includes some POW, and it creates some new money.

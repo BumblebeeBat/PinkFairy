@@ -17,3 +17,9 @@ Maybe each user should store the ids-name combos for the people who he chats wit
 We need a patricia trie that stores by arbitrary key. We need it for the naming system so that users can have unique names.
 
 Maybe we should delete old stuff from the oracle trie. Once all the bets are settled, the information doesn't matter. Maybe we will give them a month to close their bets.
+
+Maybe we should do a truthcoin-like SVD between the votes that are included in the block. Then people would vote beliefs instead of desires.
+
+Maybe we should do an anti-pre-revelation game https://blog.ethereum.org/2015/08/28/on-anti-pre-revelation-games/
+Then it would be harder for validators to collude to make the oracle go bad.
+We cant use an APR game for voting, because some people consistently vote against the majority and shouldn't be punished for having a different opinion. 

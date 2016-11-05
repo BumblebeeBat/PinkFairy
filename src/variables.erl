@@ -18,6 +18,7 @@
 	       validators_per_block,
 	       account_rent,
 	       channel_rent,
+	       pow_price,
 	      %below this line isn't voted on.
 	       height}).
 list_to_vars(T) ->
@@ -68,4 +69,5 @@ create_block_pow(X) ->
     X#vars.create_block_pow.
 create_block_cost(X) ->
     X#vars.create_block_cost.
-
+mininum_oracle_lifespan(X) ->
+    X#vars.mol.

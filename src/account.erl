@@ -8,15 +8,15 @@
 	      addr = []}). %addr is the hash of the public key we use to spend money.
 -record(update, {id = -1, 
 		 balance = 0, %how much money you gained
-		 nonce = 0, %how much to increment nonce
+		 nonce = 0, %highest nonce value consumed, or [] for no nonce consumed
 		 height, 
 		 revealed}).
 %revealed is the most recently revealed entropy. Every revealed entropy needs to be the inverse hash of the previously revealed entropy
 
 new_account(Balance, Nonce, Height, Revealed) ->
     #acc{balance = Balance, nonce = Nonce, height = Height, revealed = Revealed}.
-new_update(Loc, DBalance, DNonce, Height, Revealed) ->
-    #update{loc = Loc, balance = DBalance, nonce = DNonce, height = Height, revealed = Revealed}.
+new_update(Loc, DBalance, Nonce, Height, Revealed) ->
+    #update{loc = Loc, balance = DBalance, nonce = [Nonce], height = Height, revealed = Revealed}.
 
 serialize(A) ->
     BAL = constants:balance_bits(),
@@ -58,7 +58,11 @@ combine_updates(U1, U2) ->
     Balance = U1B + U2B,
     U1N = U1#update.nonce,
     U2N = U2#update.nonce,
-    Nonce = U1N + U2N,
+    Nonce = if
+		U1N == [] -> U2N;
+		U2N == [] -> U1N;
+		true -> max(U2N, U1N)
+	    end,
     U1H = U1#update.height,
     U2H = U2#update.height,
     U1R = U1#update.revealed,

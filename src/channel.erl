@@ -1,9 +1,9 @@
 -module(channel).
--export([new_channel/5,test/0,serialize/1,deserialize/1]).
+-export([new_channel/5,test/0,serialize/1,deserialize/1,update_channel/3]).
 
 %This is the part of the channel that is written onto the hard drive.
 
--record(channel, {acc1 = 0, acc2 = 0, bal1 = 0, bal2 = 0, 
+-record(channel, {id = 0, acc1 = 0, acc2 = 0, bal1 = 0, bal2 = 0, 
 		  nonce = 0,%How many times has this channel-state been updated. If your partner has a state that was updated more times, then they can use it to replace your final state.
 		  rent = 0,
 		  rent_direction = 0,
@@ -12,12 +12,12 @@
 % we can set timeout_height to 0 to signify that we aren't in timeout mode. So we don't need the timeout flag.
 		  %timeout = false}).
 -record(update, {inc1 = 0, inc2 = 0, nonce = 0, rent = 0, rent_direction = 0}).
-update_channel(C, U, Vars) ->
+update_channel(C, U, _Vars) ->
     C#channel{bal1 = C#channel.bal1 + U#update.inc1,
 	      bal2 = C#channel.bal2 + U#update.inc2,
 	      nonce = U#update.nonce,
 	      rent = U#update.rent,
-	      rent_direction = U#update.rent_direction,
+	      rent_direction = U#update.rent_direction}.
 test() ->
     C = new_channel(0,1,2,3,-4),
     C = deserialize(serialize(C)).
