@@ -13,7 +13,15 @@ hash(Block) ->
     B2 = term_to_binary(Block),
     hash:doit(B2).
 
-check(Block, _Seed, _Votes, Prev) ->
+check(PowBlock, _Seed, _Votes, Prev) ->
+    %Check that Prev is a valid block in our memory!!
+    VarsRoot = Prev#block.variables,
+    CFG = cfg(variables),
+    DiffPath = leaf:path_maker(variables:path(difficulty), CFG),
+    {_, Difficulty, _Proof} = get:get(DiffPath, VarsRoot, CFG),%we are assuming that all the proofs were read in at a previous step, so we are now able to query them.
+    %true = verify:proof(VarsRoot, Difficulty, Proof, CFG),
+    pow:above_min(PowBlock, Difficulty),%difficulty is in the variables trie.
+    Block = pow:data(PowBlock),
     true = (block:height(Block)-1) == block:height(Prev),
     H = hash(Prev),
     H = Block#block.prev_hash,
@@ -22,13 +30,9 @@ check(Block, _Seed, _Votes, Prev) ->
 		   Prev#block.channels,
 		   Prev#block.accounts,
 		   Prev#block.variables),
-    Difficulty = 0,
-    POW = 0,
-    pow:above_min(POW, Difficulty),%difficulty is in the variables trie.
     %enough vote transactions
     %check sample of votes from vote trie to calculate the weight
     ok.
-
 
 
 test() ->

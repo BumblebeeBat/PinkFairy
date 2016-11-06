@@ -1,5 +1,5 @@
 -module(account).
--export([serialize/1,deserialize/1,combine_updates/2,apply_update/2,new_account/4,new_update/5,test/0]).
+-export([serialize/1,deserialize/1,combine_updates/2,apply_update/3,new_account/4,new_update/5,test/0]).
 
 -record(acc, {balance = 0, %amount of money you have
 	      nonce = 0, %increments with every tx you put on the chain. 
@@ -15,8 +15,8 @@
 
 new_account(Balance, Nonce, Height, Revealed) ->
     #acc{balance = Balance, nonce = Nonce, height = Height, revealed = Revealed}.
-new_update(Loc, DBalance, Nonce, Height, Revealed) ->
-    #update{loc = Loc, balance = DBalance, nonce = [Nonce], height = Height, revealed = Revealed}.
+new_update(Id, DBalance, Nonce, Height, Revealed) ->
+    #update{id = Id, balance = DBalance, nonce = [Nonce], height = Height, revealed = Revealed}.
 
 serialize(A) ->
     BAL = constants:balance_bits(),
@@ -51,8 +51,8 @@ deserialize(A) ->
     #acc{balance = B1, nonce = B2, height = B4, revealed = <<B5:HD>>, addr = <<B6:HD>>}.
     
 combine_updates(U1, U2) ->
-    Loc = U1#update.id,
-    Loc = U2#update.id,
+    Id = U1#update.id,
+    Id = U2#update.id,
     U1B = U1#update.balance,
     U2B = U2#update.balance,
     Balance = U1B + U2B,
@@ -65,19 +65,19 @@ combine_updates(U1, U2) ->
 	    end,
     U1H = U1#update.height,
     U2H = U2#update.height,
-    U1R = U1#update.revealed,
-    U2R = U2#update.revealed,
+    %U1R = U1#update.revealed,
+    %U2R = U2#update.revealed,
     Height = max(U1H, U2H),
     H1 = U1#update.revealed, 
     H2 = U2#update.revealed, 
     H12 = trie_hash:doit(H1),
     H22 = trie_hash:doit(H2),
     Revealed = 
-	case
+	if
 	    H1 == H22 -> H1;
 	    H2 == H12 -> H2
 	end,
-    #update{loc = Loc, balance = Balance, nonce = Nonce, height = Height, revealed = Revealed}.
+    #update{id = Id, balance = Balance, nonce = Nonce, height = Height, revealed = Revealed}.
     
 apply_update(Acc, U, Vars) ->
     AccountRent = variables:account_rent(Vars),
@@ -115,14 +115,12 @@ test() ->
     H4 = hash:doit(H3),
     hash_chain([H4, H3, H2, H1]),
     A = #acc{revealed = H4},
-    U1 = #update{loc = 0, balance = 30, nonce = 1, height = 1, revealed = [H3]},
-    U2 = #update{loc = 0, balance = -10, nonce = 1, height = 2, revealed = [H2]},
-    A2 = apply_update(A, U1),
+    U1 = #update{id = 0, balance = 30, nonce = 1, height = 1, revealed = [H3]},
+    U2 = #update{id = 0, balance = -10, nonce = 1, height = 2, revealed = [H2]},
+    A2 = apply_update(A, U1, []),
     A3 = {acc,20,2,2,
 	  <<117,147,246,249,247,131,226,60,9,164,235,197>>,
 	  []},
-    A3 = apply_update(A2, U2),
+    A3 = apply_update(A2, U2, []),
     U3 = combine_updates(U1, U2),
-    A3 = apply_update(A, U3).
-
-    
+    A3 = apply_update(A, U3, []).

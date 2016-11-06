@@ -2,16 +2,14 @@
 -export([doit/2, spend/4]).
 -record(spend, {from = 0, nonce = 0, to = 0, amount = 0, fee = 0}).
 spend(To, Amount, Fee, Id) ->
-    %Id = keys:id(),
     Acc = block_tree:account(Id),
     #spend{from = Id, nonce = accounts:nonce(Acc) + 1, to = To, amount = Amount, fee = Fee}.
-doit(Tx, PrevBlock) ->
+doit(Tx, Channels, Accounts, Variables, Height, Return) ->
     From = Tx#spend.from,
     false = From == Tx#spend.to,
-    Height = block:height(PrevBlock) + 1,
     U = account:new_update(Tx#spend.to, Tx#spend.amount, [], Height, []),
-    T = account:new_update(Tx#spend.from, -Tx#spend.amount, Tx#spend.nonce, Height, []),
-    {[], [U,T]}.
+    T = account:new_update(Tx#spend.from, -Tx#spend.amount-Tx#spend.fee, [Tx#spend.nonce], Height, []),
+    Return ! {[], [U,T], []}.%channels, accounts, variables
 
 %doit(Tx, ParentKey, Channels, Accounts, TotalCoins, S, NewHeight) ->
 %    From = Tx#spend.from,

@@ -10,4 +10,4 @@ map(F, [A|T]) ->
 
 
 test() ->
-    map(func, [0,1,2,3,4]).
+    map(fun(X) -> func(X) end, [0,1,2,3,4]).

@@ -12,7 +12,7 @@
 start(_StartType, _StartArgs) ->
     ssl:start(),
     application:start(inets),
-    pink_fairy_sup:start_link(constants:trie_size()).
+    pink_fairy_sup:start_link(node_configuration:doit(trie_size)).
 
 
 %start() ->

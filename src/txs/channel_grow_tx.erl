@@ -1,4 +1,4 @@
--module(to_channel_tx).%used to create a channel, or increase the amount of money in it.
+-module(channel_grow_tx).%used to create a channel, or increase the amount of money in it.
 -export([next_top/2,doit/7,tc_increases/1,to_channel/4,create_channel/5,create_channel2/6,my_side/1,min_ratio/2,test/0,grow_ratio/2,is_tc/1,id/1]).
 -record(tc, {acc1 = 0, acc2 = 1, nonce = 0, bal1 = 0, bal2 = 0, consensus_flag = <<"delegated_1">>, fee = 0, id = -1, increment = 0}).
 is_tc(X) -> is_record(X, tc).

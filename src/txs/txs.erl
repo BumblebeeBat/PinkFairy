@@ -57,7 +57,7 @@ apply_updates([], MerkleRoot) -> MerkleRoot;
 apply_updates([H|T], Root) -> 
     NewRoot = apply_update(H, Root),
     apply_updates(T, NewRoot).
-apply_update(Stuff, Root) ->
+apply_update(_Stuff, _Root) ->
     %use the included proof to calculate the new root.
     ok.
     
@@ -69,10 +69,10 @@ digest(Txs, Channels, Accounts, Variables) ->
     CU = sort_compress(ChannelUpdates, 
 		       fun(X, Y) -> channel:combine_updates(X, Y) end, 
 		       fun(X) -> channel:id(X) end),
-    AU = sort_compress(Accounts, 
+    AU = sort_compress(AccountUpdates, 
 		       fun(X, Y) -> account:combine_updates(X, Y) end,
 		       fun(X) -> account:id(X) end),
-    VU = sort_compress(Variables, 
+    VU = sort_compress(VariableUpdates, 
 		       fun(X, Y) -> variables:combine_updates(X, Y) end,
 		       fun(X) -> variables:id(X) end),
     {apply_updates(CU, Channels),
@@ -85,10 +85,10 @@ digest2([SignedTx|Txs], Channels, Accounts, Variables, CU, AU, VU) ->
     true = sign:verify(SignedTx, Accounts),
     Tx = sign:data(SignedTx),
     Type = element(1, Tx),
-    spawn(Type, doit, [Tx, Channels, Accounts, Variables, self()]),
+    spawn(Type, doit, [Tx, Channels, Accounts, Variables, Height, self()]),%I used spawn here because the if conditional for all 20 types of functions was too much typing.
     receive 
-	{NewCus, NewAus, NewVUs} -> 
-	    digest2(SignedTxs, Channels, Accounts, CU++NewCUs, AU++NewAUs, VU++NewVUs)
+	{NewCUs, NewAUs, NewVUs} -> 
+	    digest2(Txs, Channels, Accounts, Variables, CU++NewCUs, AU++NewAUs, VU++NewVUs)
     end.
 
 test() -> 0.

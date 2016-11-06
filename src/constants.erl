@@ -26,4 +26,9 @@ account_size() ->
 channel_size() ->    
     ?ChannelSizeWithoutPadding + channel_padding().
 entropy_file() -> "data/entropy_file.db".
-
+variable_size() -> 3. %bytes
+vote_tx_size() ->
+    5000. %5k bytes is the limit for how many things can be voted on at a time.
+%we should probably update this datastructure to store arbitrary sized votes.
+many_variables() ->
+    5000.

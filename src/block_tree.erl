@@ -10,7 +10,7 @@
 %We should start by downloading a recently hashed block that the user inputs. From that we should download the rest of the blocks backwards, and then verify them forwards.
 
 %If a fork gets too long, the node should give up and request a recent hash from the user.
--export([test/0]).
+-export([absorb/2, read/1, test/0]).
 absorb(Block, PrevBlock) ->
     true = block:check(Block, PrevBlock),
     save(Block).
@@ -24,6 +24,8 @@ binary_to_file(B) ->
 save(Block) ->
     Z = zlib:compress(term_to_binary(Block)),
     Hash = block:hash(Block),
-    BF = binary_to_file(hash(Block)),
+    BF = binary_to_file(block:hash(Block)),
     db:save(BF, Z),
     Hash.
+test() ->
+    ok.

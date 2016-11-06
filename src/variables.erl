@@ -20,7 +20,9 @@
 	       channel_rent,
 	       pow_price,
 	      %below this line isn't voted on.
-	       height}).
+	       height,
+	       minimum_oracle_lifespan,
+	       difficulty}).
 list_to_vars(T) ->
     list_to_tuple([vars|T]).
 vars_to_list(V) ->
@@ -70,4 +72,6 @@ create_block_pow(X) ->
 create_block_cost(X) ->
     X#vars.create_block_cost.
 mininum_oracle_lifespan(X) ->
-    X#vars.mol.
+    X#vars.minimum_oracle_lifespan.
+path(difficulty) ->
+    0.

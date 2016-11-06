@@ -1,6 +1,6 @@
 %If you did not get slashed, and you waited delay since channel_timeout, then this is how you close the channel and get the money out.
 
--module(channel_close_tx).
+-module(channel_team_close_tx).
 -export([doit/7, slow_close/2, id/1]).
 -record(channel_close, {acc = 0, nonce = 0, id = 0, fee = 0}).
 id(X) -> X#channel_close.id.
