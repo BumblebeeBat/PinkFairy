@@ -11,7 +11,27 @@
 		  last_modified = 0}).%,%when one partner disappears, the other partner needs to wait so many blocks until they can access their money. This records the time they started waiting. 
 % we can set timeout_height to 0 to signify that we aren't in timeout mode. So we don't need the timeout flag.
 		  %timeout = false}).
--record(update, {inc1 = 0, inc2 = 0, nonce = 0, rent = 0, rent_direction = 0}).
+-record(update, {type = grow, inc1 = 0, inc2 = 0, nonce = 0, rent = 0, rent_direction = 0}).%type is either grow or close.
+
+%maybe we should combine grow and close updates.
+combine_updates(A, B) ->
+    A#channel.type = grow,
+    B#channel.type = grow,
+    AN = A#channel.nonce,
+    BN = B#channel.nonce,
+    {Nonce, Rent, Direction} = 
+	if
+	    AN > BN -> {AN, A#channel.rent, A#channel.rent_direction};
+	    BN > AN -> {BN, B#channel.rent, B#channel.rent_direction}
+	end,
+    #update{type = grow, 
+	    inc1 = A#channel.inc1 + B#channel.inc1,
+	    inc2 = A#channel.inc2 + B#channel.inc2,
+	    nonce = Nonce, 
+	    rent = Rent, 
+	    rent_direction = Direction};
+	    
+    
 update_channel(C, U, _Vars) ->
     C#channel{bal1 = C#channel.bal1 + U#update.inc1,
 	      bal2 = C#channel.bal2 + U#update.inc2,

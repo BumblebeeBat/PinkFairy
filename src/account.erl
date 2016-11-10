@@ -1,5 +1,5 @@
 -module(account).
--export([serialize/1,deserialize/1,combine_updates/2,apply_update/3,new_account/4,new_update/5,test/0]).
+-export([serialize/1,deserialize/1,combine_updates/2,apply_update/3,new_account/4,new_update/5,nonce/1, test/0]).
 
 -record(acc, {balance = 0, %amount of money you have
 	      nonce = 0, %increments with every tx you put on the chain. 
@@ -17,7 +17,7 @@ new_account(Balance, Nonce, Height, Revealed) ->
     #acc{balance = Balance, nonce = Nonce, height = Height, revealed = Revealed}.
 new_update(Id, DBalance, Nonce, Height, Revealed) ->
     #update{id = Id, balance = DBalance, nonce = [Nonce], height = Height, revealed = Revealed}.
-
+nonce(X) -> X#acc.nonce.
 serialize(A) ->
     BAL = constants:balance_bits(),
     HEI = constants:height_bits(),
@@ -65,8 +65,6 @@ combine_updates(U1, U2) ->
 	    end,
     U1H = U1#update.height,
     U2H = U2#update.height,
-    %U1R = U1#update.revealed,
-    %U2R = U2#update.revealed,
     Height = max(U1H, U2H),
     H1 = U1#update.revealed, 
     H2 = U2#update.revealed, 

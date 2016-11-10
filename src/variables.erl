@@ -4,6 +4,9 @@
 
 %these variables define how the consensus protocol works. At every height, the validators modify them slightly, so that the blockchain can adapt to its conditions.
 
+%when we process a vote transaction, we make an update. the vote transaction is big, it says an optimal number for each value. The update is small, it only says a 1 or -1.
+%combining updates is simple, just increment then all by one.
+
 -record(vars, {validator_participation_minimum,
 	       census_participation_minimum,
 	       census_period,
@@ -19,14 +22,27 @@
 	       account_rent,
 	       channel_rent,
 	       pow_price,
-	      %below this line isn't voted on.
-	       height,
 	       minimum_oracle_lifespan,
-	       difficulty}).
+	       difficulty,
+	       %below this line isn't voted on.
+	       height}).
+update_size() -> 17.
+    
+
+combine_updates(A, B) ->
+    C = tuple_to_list(A),
+    D = tuple_to_list(B),
+    L = length(C),
+    L = length(D),
+    L = update_size(),
+    list_to_tuple(map_add(C, D)).
+map_add([], []) -> [];
+map_add([H|T], [I|U]) -> [(H+I)|map_fun(T, U)].
 list_to_vars(T) ->
     list_to_tuple([vars|T]).
 vars_to_list(V) ->
     tl(tuple_to_list(V)).
+
 adjust(Values, Friction, DValues, DFriction) ->
     V = vars_to_list(Values),
     F = vars_to_list(Friction),

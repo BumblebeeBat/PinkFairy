@@ -1,25 +1,16 @@
 -module(spend_tx).
--export([doit/2, spend/4]).
+-export([doit/6, spend/6]).
 -record(spend, {from = 0, nonce = 0, to = 0, amount = 0, fee = 0}).
-spend(To, Amount, Fee, Id) ->
-    Acc = block_tree:account(Id),
-    #spend{from = Id, nonce = accounts:nonce(Acc) + 1, to = To, amount = Amount, fee = Fee}.
+spend(To, Amount, Fee, Id, Accounts) ->
+    %accounts is a pointer to the root of the current accounts trie.
+    {_, Acc, Proof} = trie:get(Id, Accounts, accounts),
+    {_, _Acc2, Proof2} = trie:get(To, Accounts, accounts),
+    Tx = #spend{from = Id, nonce = account:nonce(Acc) + 1, to = To, amount = Amount, fee = Fee},
+    {Tx, [Proof, Proof2]}
 doit(Tx, Channels, Accounts, Variables, Height, Return) ->
     From = Tx#spend.from,
     false = From == Tx#spend.to,
-    U = account:new_update(Tx#spend.to, Tx#spend.amount, [], Height, []),
-    T = account:new_update(Tx#spend.from, -Tx#spend.amount-Tx#spend.fee, [Tx#spend.nonce], Height, []),
+    A = Tx#spend.amount,
+    U = account:new_update(Tx#spend.to, A, [], Height, []),
+    T = account:new_update(Tx#spend.from, -A-Tx#spend.fee, [Tx#spend.nonce], Height, []),
     Return ! {[], [U,T], []}.%channels, accounts, variables
-
-%doit(Tx, ParentKey, Channels, Accounts, TotalCoins, S, NewHeight) ->
-%    From = Tx#spend.from,
-%    false = From == Tx#spend.to,
-%    To = block_tree:account(Tx#spend.to, ParentKey, Accounts),
-%    F = block_tree:account(Tx#spend.from, ParentKey, Accounts),
-%    A = Tx#spend.amount,
-%    NT = accounts:update(To, NewHeight, A, 0, 0, TotalCoins),
-%    NF = accounts:update(F, NewHeight, -A - Tx#spend.fee, 0, 1, TotalCoins),
-%    Nonce = accounts:nonce(NF),
-%    Nonce = Tx#spend.nonce,
-%    Accounts2 = dict:store(Tx#spend.to, NT, Accounts),
-%    {Channels, dict:store(Tx#spend.from, NF, Accounts2), TotalCoins, S}.

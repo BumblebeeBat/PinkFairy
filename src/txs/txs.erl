@@ -43,24 +43,23 @@ sort_compress_merge([H|T], [B|S], C, Combine, Value) ->
     {X, Y, Z} = if
 	V3 == V1-> 
 	    {T, [B|S], [Combine(D, H)|tl(C)]};
-	V2 == V1 -> 
+	V2 == V3 -> 
 	    {[H|T], S, [Combine(D, B)|tl(C)]};
 	V1 > V2 -> {T, [B|S], [H|C]};
 	V1 < V2 -> {[H|T], S, [B|C]};
-	(V1 == V2) and (V3 == V1)-> 
-	    {T, [B|S], [Combine(H, D)|tl(C)]};
 	V1 == V2 ->
 	    {[Combine(H, B)|T], S, C}
     end,
     sort_compress_merge(X, Y, Z, Combine, Value).
-apply_updates([], MerkleRoot) -> MerkleRoot;
-apply_updates([H|T], Root) -> 
-    NewRoot = apply_update(H, Root),
-    apply_updates(T, NewRoot).
-apply_update(_Stuff, _Root) ->
-    %use the included proof to calculate the new root.
-    ok.
-    
+apply_updates([], MerkleRoot, _) -> MerkleRoot;
+apply_updates([H|T], Root, Type) -> 
+    NewRoot = apply_update(H, Root, Type),
+    apply_updates(T, NewRoot, Type).
+apply_update(Stuff, Root, Type) ->
+    {_, NewRoot, _} = trie:store(Stuff, Root, Type),
+    NewRoot.
+reduce(_, []) -> [];
+reduce(F, [A|[B|T]]) -> reduce(F, [F(A,B)|T]).
 digest(Txs, Channels, Accounts, Variables) ->
     {ChannelUpdates, AccountUpdates, VariableUpdates} = 
 	digest2(Txs, Channels, Accounts, Variables),
@@ -72,12 +71,11 @@ digest(Txs, Channels, Accounts, Variables) ->
     AU = sort_compress(AccountUpdates, 
 		       fun(X, Y) -> account:combine_updates(X, Y) end,
 		       fun(X) -> account:id(X) end),
-    VU = sort_compress(VariableUpdates, 
-		       fun(X, Y) -> variables:combine_updates(X, Y) end,
-		       fun(X) -> variables:id(X) end),
-    {apply_updates(CU, Channels),
-     apply_updates(AU, Accounts),
-     apply_updates(VU, Variables)}.
+    VU = reduce(fun(X, Y) -> variables:combine_updates(X, Y) end,
+		VariableUpdates),
+    {apply_updates(CU, Channels, channels),
+     apply_updates(AU, Accounts, accounts),
+     apply_updates(VU, Variables, variables)}.
 digest2(Txs, Channels, Accounts, Variables) ->    
     digest2(Txs, Channels, Accounts, Variables, [], [], []).
 digest2([], _, _, _, CU, AU, VU) -> {CU, AU, VU};
@@ -91,4 +89,9 @@ digest2([SignedTx|Txs], Channels, Accounts, Variables, CU, AU, VU) ->
 	    digest2(Txs, Channels, Accounts, Variables, CU++NewCUs, AU++NewAUs, VU++NewVUs)
     end.
 
-test() -> 0.
+test() -> 
+    Tx = spend_tx:spend(1, 100, 10, 0),
+    {Hash, Root, _Proof} = store:store(<<1,2,3,4>>, 0),
+    digest([Tx], 0, Hash, 0),
+    
+    
