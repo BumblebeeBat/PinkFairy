@@ -1,6 +1,5 @@
 -module(serve).
--export([start/0, start/1, pw/0, pw/1]).
-start() -> start(port:check()).
+-export([start/1, pw/0, pw/1]).
 start(Port) ->
     io:fwrite("start server\n"),
     

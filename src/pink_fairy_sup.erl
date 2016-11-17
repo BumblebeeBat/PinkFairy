@@ -4,7 +4,7 @@
 -define(CHILD(I, Type), {I, {I, start_link, []}, permanent, 5000, Type, [I]}).
 start_link(Amount) -> supervisor:start_link({local, ?MODULE}, ?MODULE, [Amount]).
 %-define(keys, [keys, accounts, channels, block_dump, block_pointers, block_finality, secrets, entropy, all_secrets, port, block_tree, tx_pool, inbox, mail, arbitrage, tx_pool_feeder, channel_manager, channel_manager_feeder, channel_partner]).
--define(keys, [entropy_maker, keys]).
+-define(keys, [entropy_maker, keys, port]).
 
 child_maker([]) -> [];
 child_maker([H|T]) -> [?CHILD(H, worker)|child_maker(T)].
