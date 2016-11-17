@@ -1,35 +1,40 @@
 -module(channel).
--export([new_channel/5,test/0,serialize/1,deserialize/1,update_channel/3]).
+-export([combine_updates/2,new_channel/5,test/0,serialize/1,deserialize/1,update_channel/3]).
 
 %This is the part of the channel that is written onto the hard drive.
 
--record(channel, {id = 0, acc1 = 0, acc2 = 0, bal1 = 0, bal2 = 0, 
+-record(channel, {id = 0, %the unique id number that identifies this channel
+		  acc1 = 0, 
+		  acc2 = 0, 
+		  bal1 = 0, 
+		  bal2 = 0, 
 		  nonce = 0,%How many times has this channel-state been updated. If your partner has a state that was updated more times, then they can use it to replace your final state.
 		  rent = 0,
-		  rent_direction = 0,
-		  timeout_height = 0,
-		  last_modified = 0}).%,%when one partner disappears, the other partner needs to wait so many blocks until they can access their money. This records the time they started waiting. 
+		  rent_direction = 0,%0 or 1
+		  timeout_height = 0,%when one partner disappears, the other partner needs to wait so many blocks until they can access their money. This records the time they started waiting. 
 % we can set timeout_height to 0 to signify that we aren't in timeout mode. So we don't need the timeout flag.
-		  %timeout = false}).
+		  last_modified = 0%this is used so that the owners of the channel can pay a fee for how long the channel has been open.
+		  }%
+       ).
 -record(update, {type = grow, inc1 = 0, inc2 = 0, nonce = 0, rent = 0, rent_direction = 0}).%type is either grow or close.
 
 %maybe we should combine grow and close updates.
 combine_updates(A, B) ->
-    A#channel.type = grow,
-    B#channel.type = grow,
-    AN = A#channel.nonce,
-    BN = B#channel.nonce,
+    grow = A#update.type,
+    grow = B#update.type,
+    AN = A#update.nonce,
+    BN = B#update.nonce,
     {Nonce, Rent, Direction} = 
 	if
-	    AN > BN -> {AN, A#channel.rent, A#channel.rent_direction};
-	    BN > AN -> {BN, B#channel.rent, B#channel.rent_direction}
+	    AN > BN -> {AN, A#update.rent, A#update.rent_direction};
+	    BN > AN -> {BN, B#update.rent, B#update.rent_direction}
 	end,
     #update{type = grow, 
-	    inc1 = A#channel.inc1 + B#channel.inc1,
-	    inc2 = A#channel.inc2 + B#channel.inc2,
+	    inc1 = A#update.inc1 + B#update.inc1,
+	    inc2 = A#update.inc2 + B#update.inc2,
 	    nonce = Nonce, 
 	    rent = Rent, 
-	    rent_direction = Direction};
+	    rent_direction = Direction}.
 	    
     
 update_channel(C, U, _Vars) ->

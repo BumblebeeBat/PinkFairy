@@ -12,7 +12,6 @@
 		 height, 
 		 revealed}).
 %revealed is the most recently revealed entropy. Every revealed entropy needs to be the inverse hash of the previously revealed entropy
-
 new_account(Balance, Nonce, Height, Revealed) ->
     #acc{balance = Balance, nonce = Nonce, height = Height, revealed = Revealed}.
 new_update(Id, DBalance, Nonce, Height, Revealed) ->

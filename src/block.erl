@@ -1,6 +1,7 @@
 -module(block).
 -export([hash/1, check/4, test/0]).
 -record(block, {height, prev_hash, txs, votes, channels, accounts, variables, mines_block}).%tries: txs, channels, census, 
+-define(Genesis, #block{height = 1, prev_hash = 0, txs = [], votes = 0, channels = 0}).
 %prev_hashes is a list that points to: 1 block ago, 2 blocks ago, 4 blocks ago, 8 blocks ago ... all the way back to the earliest block possible. That way we can efficiently look up old blocks.
 %because we delete old blocks, and we don't point to deleted blocks, this list will be log2(number of blocks we remember) long.
 %this gets wrapped in a signature from the pays_burn person, and then wrapped in a pow.

@@ -11,7 +11,7 @@
 %addr is 96 bits. balance is 48 bits. Nonce is 32 bits. delegated is 48 bits. height is 32 bits, bringing the total to 32 bytes.
 
 -define(word, ((164 + constants:address_entropy()) div 8)).
--record(acc, {balance = 0, nonce = 0, addr = "", delegated = 0, height = 0}).%the height when delegation fees were last payed. 
+-record(acc, {balance = 0, nonce = 0, addr = "", height = 0}).%the height when delegation fees were last payed. 
 init(ok) -> 
 
     {T, D} = 

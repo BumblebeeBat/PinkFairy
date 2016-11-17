@@ -34,6 +34,9 @@ Every address has a nonce that updates on each tx. To be valid, the tx must incl
 - oracle_slash
 - oracle_reward
 - POW
+- take_name
+- discard_name
+- slash_name
 
 
 # Which tx types should be hashlockable?
@@ -91,6 +94,14 @@ The vote txs that are on the block are used for:
 Depending on how recently you voted, you can be punished or rewarded. The system is incentivized to get everyone to vote frequently.
 If we assume that more than 1/2 of the users want the system to stay unforked, then waiting until more than 1/2 of them vote is finality.
 The frequency that users vote determines finality.
+
+# slash
+
+If you can show that someone voted on 2 contradictory forks, then this deletes the vote transaction
+
+# vote reward
+
+If the vote didn't get slashed, this is how you get your reward
 
 # start_randomness
 

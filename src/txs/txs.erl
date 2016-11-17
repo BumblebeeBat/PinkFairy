@@ -7,13 +7,12 @@
 
 -module(txs).
 -behaviour(gen_server).
--export([start_link/0,code_change/3,handle_call/3,handle_cast/2,handle_info/2,init/1,terminate/2, dump/0,txs/0,digest/4,test/0]).
+-export([start_link/0,code_change/3,handle_call/3,handle_cast/2,handle_info/2,init/1,terminate/2, dump/0,txs/0,digest/5,test/0]).
 init(ok) -> {ok, []}.
 start_link() -> gen_server:start_link({local, ?MODULE}, ?MODULE, ok, []).
 code_change(_OldVsn, State, _Extra) -> {ok, State}.
 terminate(_, _) -> io:format("txs died!"), ok.
 handle_info(_, X) -> {noreply, X}.
-
 handle_call(txs, _From, X) -> {reply, X, X}.
 handle_cast(dump, _) -> {noreply, []};
 handle_cast({add_tx, Tx}, X) -> {noreply, [Tx|X]}.
@@ -55,14 +54,22 @@ apply_updates([], MerkleRoot, _) -> MerkleRoot;
 apply_updates([H|T], Root, Type) -> 
     NewRoot = apply_update(H, Root, Type),
     apply_updates(T, NewRoot, Type).
-apply_update(Stuff, Root, Type) ->
-    {_, NewRoot, _} = trie:store(Stuff, Root, Type),
-    NewRoot.
+apply_update(_Stuff, _Root, variables) ->
+    %map over all the things and update the variables in the trie.
+    ok;
+apply_update(_Stuff, _Root, channels) ->
+    ok;
+apply_update(Stuff, _Root, accounts) ->
+    io:fwrite("apply update\n"),
+    io:fwrite(Stuff),
+    %{_, NewRoot, _} = trie:store(Stuff, Root, Type),
+    %NewRoot.
+    ok.
 reduce(_, []) -> [];
 reduce(F, [A|[B|T]]) -> reduce(F, [F(A,B)|T]).
-digest(Txs, Channels, Accounts, Variables) ->
+digest(Txs, Channels, Accounts, Variables, Height) ->
     {ChannelUpdates, AccountUpdates, VariableUpdates} = 
-	digest2(Txs, Channels, Accounts, Variables),
+	digest2(Txs, Channels, Accounts, Variables, Height),
     %The previous line should be parallelized, then the results
     %appended before we start the sort_compress
     CU = sort_compress(ChannelUpdates, 
@@ -76,22 +83,27 @@ digest(Txs, Channels, Accounts, Variables) ->
     {apply_updates(CU, Channels, channels),
      apply_updates(AU, Accounts, accounts),
      apply_updates(VU, Variables, variables)}.
-digest2(Txs, Channels, Accounts, Variables) ->    
-    digest2(Txs, Channels, Accounts, Variables, [], [], []).
-digest2([], _, _, _, CU, AU, VU) -> {CU, AU, VU};
-digest2([SignedTx|Txs], Channels, Accounts, Variables, CU, AU, VU) ->
+digest2(Txs, Channels, Accounts, Variables, Height) ->    
+    digest3(Txs, Channels, Accounts, Variables, [], [], [], Height).
+digest3([], _, _, _, CU, AU, VU, _) -> {CU, AU, VU};
+digest3([SignedTx|Txs], Channels, Accounts, Variables, CU, AU, VU, Height) ->
     true = sign:verify(SignedTx, Accounts),
     Tx = sign:data(SignedTx),
     Type = element(1, Tx),
     spawn(Type, doit, [Tx, Channels, Accounts, Variables, Height, self()]),%I used spawn here because the if conditional for all 20 types of functions was too much typing.
     receive 
 	{NewCUs, NewAUs, NewVUs} -> 
-	    digest2(Txs, Channels, Accounts, Variables, CU++NewCUs, AU++NewAUs, VU++NewVUs)
+	    digest3(Txs, Channels, Accounts, Variables, CU++NewCUs, AU++NewAUs, VU++NewVUs, Height)
     end.
 
 test() -> 
-    Tx = spend_tx:spend(1, 100, 10, 0),
-    {Hash, Root, _Proof} = store:store(<<1,2,3,4>>, 0),
-    digest([Tx], 0, Hash, 0),
+    CCFG = trie:cfg(channels),
+    CT = cfg:trie(CCFG),%pointer to root of trie.
+    ACFG = trie:cfg(accounts),
+    AT = cfg:trie(ACFG),
+    VCFG = trie:cfg(variables),
+    VT = cfg:trie(VCFG),
+    Tx = spend_tx:spend(1, 100, 10, 0, AT),
+    digest([Tx], CT, AT, VT, 0).
     
     

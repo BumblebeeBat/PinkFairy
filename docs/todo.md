@@ -1,3 +1,5 @@
+use a seperate key for signing vote transactions, that way your money key can stay offline while the voting key is online.
+
 it would be cool if chalang had optional static typing, with the ability to define new types. That way we could move some checks to compile time.
 
 channel_rent explained in channel_rent.md
@@ -22,4 +24,9 @@ Maybe we should do a truthcoin-like SVD between the votes that are included in t
 
 Maybe we should do an anti-pre-revelation game https://blog.ethereum.org/2015/08/28/on-anti-pre-revelation-games/
 Then it would be harder for validators to collude to make the oracle go bad.
-We cant use an APR game for voting, because some people consistently vote against the majority and shouldn't be punished for having a different opinion. 
+We cant use an APR game for voting, because some people consistently vote against the majority and shouldn't be punished for having a different opinion.
+
+The fork choice rule for downloading is easy. Which fork has the most votes from most recent.
+The fork choice rule for signing is a littel more complicated. It balances 2 goals.
+1) sign on the fork that has the most signatures from other users
+2) sign on the fork that has the least censorship
