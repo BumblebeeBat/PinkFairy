@@ -37,6 +37,8 @@ Every address has a nonce that updates on each tx. To be valid, the tx must incl
 - take_name
 - discard_name
 - slash_name
+- bond
+- bond_slash
 
 
 # Which tx types should be hashlockable?
@@ -183,3 +185,11 @@ If the voters haven't changed the oracle's decision about the meatspace event, t
 # POW
 
 This transaction includes some POW, and it creates some new money.
+
+# bond
+
+This locks up money on one branch for as long as you specify. When you unlock your money, you get paid interest.
+
+# bond_slash
+
+If someone bonds on conflicting blockchains for the same height, then you can collect proof of their crime and destroy their deposit. You can keep some of their deposit.

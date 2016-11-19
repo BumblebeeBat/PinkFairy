@@ -1,5 +1,8 @@
 -module(sign_tx).
 -export([test/0, doit/8, htoi/1, itoh/1, winner/5, sign/1, winners/1, acc/1, secret_hash/1, winners_length/1, number/1, prev_hash/1, repeat/2, finality_ancestor/1]).
+-record(sign_tx, {acc = 0, nonce = 0, fee = 0, winners = [], recent_hash = 0, number = 0, governance = [], oracle_decisions = []}).
+
+
 -record(sign_tx, {acc = 0, nonce = 0, secret_hash = [], winners = [], prev_hash = "", number = 0, finality_ancestor = ""}).
 number(T) -> T#sign_tx.number.
 prev_hash(T) -> T#sign_tx.prev_hash.

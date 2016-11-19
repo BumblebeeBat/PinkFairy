@@ -67,9 +67,10 @@ apply_update(Stuff, _Root, accounts) ->
     ok.
 reduce(_, []) -> [];
 reduce(F, [A|[B|T]]) -> reduce(F, [F(A,B)|T]).
-digest(Txs, Channels, Accounts, Variables, Height) ->
-    {ChannelUpdates, AccountUpdates, VariableUpdates} = 
+digest(Txs, Channels, Accounts, Variables, Height, BlockAccountUpdates) ->
+    {ChannelUpdates, TxAccountUpdates, VariableUpdates} = 
 	digest2(Txs, Channels, Accounts, Variables, Height),
+    AccountUpdates = BlockAccountUpdates ++ TxAccountUpdates
     %The previous line should be parallelized, then the results
     %appended before we start the sort_compress
     CU = sort_compress(ChannelUpdates, 

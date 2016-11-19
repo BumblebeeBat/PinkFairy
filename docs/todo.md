@@ -30,3 +30,13 @@ The fork choice rule for downloading is easy. Which fork has the most votes from
 The fork choice rule for signing is a littel more complicated. It balances 2 goals.
 1) sign on the fork that has the most signatures from other users
 2) sign on the fork that has the least censorship
+
+Because of tragedy of the commons, it is too affordable to bribe the users to vote wrong.
+https://github.com/ethereum/wiki/wiki/Proof-of-Stake-FAQ
+So, we need rather harsh limits on how fast you can move your money around.
+The amount of money you have is your account balance + 1/2 the size of all your channels.
+You can grow the amount of money you have as fast as you want.
+At all times you must have at least 1/2 as much money as the most you had in the last finality period.
+There is a vote-flag in your account. If your vote flag has been off for the last finality period, then you can completely drain your account at once.
+If your vote flag is off, then you cannot vote.
+If your vote transaction is selected, then we need to reward you. Otherwise the nash equilibrium would be to not vote.

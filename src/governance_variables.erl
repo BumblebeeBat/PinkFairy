@@ -5,23 +5,21 @@
 %when we process a vote transaction, we make an update. the vote transaction is big, it says an optimal number for each value. The update is small, it only says a 1 or -1.
 %combining updates is simple, just increment then all by one.
 
--record(vars, {validator_participation_minimum,
-	       census_participation_minimum,
-	       census_period,
-	       create_block_pow, 
-	       create_block_cost, 
-	       create_account_cost, 
-	       delete_account_reward, 
-	       create_channel_cost, 
-	       delete_channel_reward,
-	       block_size_limit,
-	       census_per_block,
-	       validators_per_block,
-	       account_rent,
-	       channel_rent,
-	       pow_price,
-	       minimum_oracle_lifespan,
-	       difficulty}).
+-record(vars, {
+	  finality_blocks,
+	  pow_per_block,
+	  create_block_burn, 
+	  create_account_cost, 
+	  delete_account_reward, 
+	  create_channel_cost, 
+	  delete_channel_reward,
+	  block_size_limit,
+	  validators_per_block,
+	  account_rent,
+	  channel_rent,
+	  oracle_delay_1,
+	  oracle_delay_2,
+	  difficulty}).
 combine_updates(A, B) ->
     X = [A, B, #vars{}],
     Y = lists:map(fun(Foo) -> tl(tuple_to_list(Foo)) end, X),
@@ -84,22 +82,48 @@ create_block_cost(X) ->
     X#vars.create_block_cost.
 mininum_oracle_lifespan(X) ->
     X#vars.minimum_oracle_lifespan.
-path(difficulty) -> 0;
-path(validator_participation_minimum) -> 1;
-path(census_participation_minimum) -> 2;
-path(census_period) -> 3;
-path(create_block_pow) -> 4;
-path(create_block_cost) -> 5;
-path(create_account_cost) -> 6;
-path(delete_account_reward) -> 7;
-path(create_channel_cost) -> 8;
-path(delete_channel_reward) -> 9;
-path(block_size_limit) -> 10;
-path(census_per_block) -> 11;
-path(validators_per_block) -> 12;
-path(account_rent) -> 13;
-path(channel_rent) -> 14;
-path(pow_price) -> 15;
-path(minimum_oracle_lifespan) -> 16.
-update_size() -> 17.
+path(finality_blocks) -> 0;
+path(pow_per_block) -> 1;
+path(create_block_burn) -> 2;
+path(create_account_cost) -> 3;
+path(delete_account_reward) -> 4;
+path(create_channel_cost) -> 5;
+path(delete_channel_reward) -> 6;
+path(block_size_limit) -> 7;
+path(validators_per_block) -> 8;
+path(account_rent) -> 9;
+path(channel_rent) -> 10;
+path(oracle_delay_1) -> 11;
+path(oracle_delay_2) -> 12;
+path(difficulty) -> 13.
+update_size() -> 14.
     
+first_var_root() ->
+    %These should all probably be in scientific notation, so we can have more range of values for less memory requirement.
+    X = 65536,
+    Var = #var{finality_blocks = X,%400
+	       pow_per_block = X, %
+	       create_block_burn = X, %
+	       create_account_cost = X, %
+	       delete_account_reward = X, %
+	       create_channel_cost = X,
+	       delete_channel_reward = X,
+	       block_size_limit = X, % two megabytes
+	       validators_per_block = X, % 32
+	       account_rent = X, %
+	       channel_rent = X,
+	       oracle_delay_1 = X,
+	       oracle_delay_2 = X,
+	       difficulty = X},
+    store(Var, 0).
+store(Var, Root) ->
+    L = tl(tuple_to_list(Var)),
+    store2(0, L, Root).
+store2(_, [], Root) -> Root.
+store2(N, [H|T], Root) ->
+    trie:put(N, Root, 0, variables), 
+    ok.
+    
+    
+
+	 
