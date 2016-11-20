@@ -31,7 +31,7 @@ check(PowBlock, _Seed, _Votes, Prev) ->
 		   Prev#block.channels,
 		   Prev#block.accounts,
 		   Prev#block.variables,
-		  []),%account updates. this is where we will delete the money of the user who created the block
+		  []),%account updates. this is where we will delete some money and lock up some money of the user who created the block
     %enough vote transactions
     %check sample of votes from vote trie to calculate the weight
     ok.

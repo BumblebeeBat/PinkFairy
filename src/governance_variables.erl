@@ -4,22 +4,27 @@
 %these variables define how the consensus protocol works. At every height, the validators modify them slightly, so that the blockchain can adapt to its conditions.
 %when we process a vote transaction, we make an update. the vote transaction is big, it says an optimal number for each value. The update is small, it only says a 1 or -1.
 %combining updates is simple, just increment then all by one.
-
+-define(vd, 65536).
 -record(vars, {
-	  finality_blocks,
-	  pow_per_block,
-	  create_block_burn, 
-	  create_account_cost, 
-	  delete_account_reward, 
-	  create_channel_cost, 
-	  delete_channel_reward,
-	  block_size_limit,
-	  validators_per_block,
-	  account_rent,
-	  channel_rent,
-	  oracle_delay_1,
-	  oracle_delay_2,
-	  difficulty}).
+	  finality_blocks = ?vd, %400
+	  pow_per_block = ?vd,
+	  create_block_burn = ?vd, 
+	  create_account_cost = ?vd, 
+	  delete_account_reward = ?vd, 
+	  create_channel_cost = ?vd, 
+	  delete_channel_reward = ?vd,
+	  block_size_limit = ?vd, % two megabytes
+	  validators_per_block = ?vd, % 32
+	  account_rent = ?vd,
+	  channel_rent = ?vd,
+	  oracle_delay_1 = ?vd,
+	  oracle_delay_2 = ?vd,
+	  pow_difficulty = ?vd,
+	  bond_difficulty = ?vd,
+	  min_bond_period = ?vd,
+	  pow_reference_age = ?vd, %when miners do POW, they have to reference a block within this many blocks ago. This is the depth at which the POW issuance transactions start adding to finality.
+	  bond_reference_age = ?vd %when users decide to make a bond on a fork, they have to reference a block within this many blocks ago. This is the depth at which bond-based coin issuance transactions start addint to finality.
+	 }).
 combine_updates(A, B) ->
     X = [A, B, #vars{}],
     Y = lists:map(fun(Foo) -> tl(tuple_to_list(Foo)) end, X),
@@ -58,30 +63,42 @@ adjust2([V|Vals],[F|Fric],[DV|DVals],[DF|DFric],Slippery,NewV,NewF) ->
     NV = frac:add(frac:mul(F, DV), V),
     NF = frac:mul(F, DF),
     adjust2(Vals, Fric, DVals, DFric, Slippery,[NV|NewV],[NF|NewF]).
-channel_rent(X) ->
-    X#vars.channel_rent.
-account_rent(X) ->
-    X#vars.account_rent.
-validators_per_block(X) ->
-    X#vars.validators_per_block.
-census_per_block(X) ->
-    X#vars.census_per_block.
-block_size_limit(X) ->
-    X#vars.block_size_limit.
-delete_channel_reward(X) ->
-    X#vars.delete_channel_reward.
-create_channel_cost(X) ->
-    X#vars.create_channel_cost.
-delete_account_reward(X) ->
-    X#vars.delete_account_reward.
+finality_blocks(X) ->
+    X#vars.finality_blocks.
+pow_per_block(X) ->
+    X#vars.pow_per_block.
+create_block_burn(X) ->
+    X#vars.create_block_burn.
 create_account_cost(X) ->
     X#vars.create_account_cost.
-create_block_pow(X) ->
-    X#vars.create_block_pow.
-create_block_cost(X) ->
-    X#vars.create_block_cost.
-mininum_oracle_lifespan(X) ->
-    X#vars.minimum_oracle_lifespan.
+delete_account_reward(X) ->
+    X#vars.delete_account_reward.
+create_channel_cost(X) ->
+    X#vars.create_channel_cost.
+delete_channel_reward(X) ->
+    X#vars.delete_channel_reward.
+block_size_limit(X) ->
+    X#vars.block_size_limit.
+validators_per_block(X) ->
+    X#vars.validators_per_block.
+account_rent(X) ->
+    X#vars.account_rent.
+channel_rent(X) ->
+    X#vars.channel_rent.
+oracle_delay_1(X) ->
+    X#vars.oracle_delay_1.
+oracle_delay_2(X) ->
+    X#vars.oracle_delay_2.
+pow_difficulty(X) ->
+    X#vars.pow_difficulty.
+bond_difficulty(X) ->
+    X#vars.bond_difficulty.
+min_bond_period(X) ->
+    X#vars.min_bond_period.
+pow_reference_age(X) ->
+    X#vars.pow_reference_age.
+bond_reference_age(X) ->
+    X#vars.bond_reference_age.
 path(finality_blocks) -> 0;
 path(pow_per_block) -> 1;
 path(create_block_burn) -> 2;
@@ -95,34 +112,22 @@ path(account_rent) -> 9;
 path(channel_rent) -> 10;
 path(oracle_delay_1) -> 11;
 path(oracle_delay_2) -> 12;
-path(difficulty) -> 13.
-update_size() -> 14.
+path(pow_difficulty) -> 13;
+path(pow_reference_age) -> 14;
+path(bond_reference_age) -> 15.
+update_size() -> 16.
     
 first_var_root() ->
     %These should all probably be in scientific notation, so we can have more range of values for less memory requirement.
-    X = 65536,
-    Var = #var{finality_blocks = X,%400
-	       pow_per_block = X, %
-	       create_block_burn = X, %
-	       create_account_cost = X, %
-	       delete_account_reward = X, %
-	       create_channel_cost = X,
-	       delete_channel_reward = X,
-	       block_size_limit = X, % two megabytes
-	       validators_per_block = X, % 32
-	       account_rent = X, %
-	       channel_rent = X,
-	       oracle_delay_1 = X,
-	       oracle_delay_2 = X,
-	       difficulty = X},
-    store(Var, 0).
+    store(#vars{}, 0).
 store(Var, Root) ->
     L = tl(tuple_to_list(Var)),
     store2(0, L, Root).
-store2(_, [], Root) -> Root.
+store2(_, [], Root) -> Root;
 store2(N, [H|T], Root) ->
-    trie:put(N, Root, 0, variables), 
-    ok.
+    NewRoot = trie:overwrite(N, H, Root, 0, variables), 
+    store2(N+1, T, NewRoot).
+    
     
     
 

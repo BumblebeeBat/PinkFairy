@@ -7,7 +7,7 @@
 
 -module(txs).
 -behaviour(gen_server).
--export([start_link/0,code_change/3,handle_call/3,handle_cast/2,handle_info/2,init/1,terminate/2, dump/0,txs/0,digest/5,test/0]).
+-export([start_link/0,code_change/3,handle_call/3,handle_cast/2,handle_info/2,init/1,terminate/2, dump/0,txs/0,digest/6,test/0]).
 init(ok) -> {ok, []}.
 start_link() -> gen_server:start_link({local, ?MODULE}, ?MODULE, ok, []).
 code_change(_OldVsn, State, _Extra) -> {ok, State}.
@@ -70,7 +70,7 @@ reduce(F, [A|[B|T]]) -> reduce(F, [F(A,B)|T]).
 digest(Txs, Channels, Accounts, Variables, Height, BlockAccountUpdates) ->
     {ChannelUpdates, TxAccountUpdates, VariableUpdates} = 
 	digest2(Txs, Channels, Accounts, Variables, Height),
-    AccountUpdates = BlockAccountUpdates ++ TxAccountUpdates
+    AccountUpdates = BlockAccountUpdates ++ TxAccountUpdates,
     %The previous line should be parallelized, then the results
     %appended before we start the sort_compress
     CU = sort_compress(ChannelUpdates, 
@@ -105,6 +105,6 @@ test() ->
     VCFG = trie:cfg(variables),
     VT = cfg:trie(VCFG),
     Tx = spend_tx:spend(1, 100, 10, 0, AT),
-    digest([Tx], CT, AT, VT, 0).
+    digest([Tx], CT, AT, VT, 0, []).
     
     
