@@ -21,7 +21,7 @@ init([Amount]) ->
     io:fwrite("pink fairy sup init\n"),
     %Max = round(math:pow(2, constants:acc_bits())),
     KeyLength = 5,% round(math:pow(16, keylength
-    true = Amount < math:pow(16, KeyLength),
+    true = Amount < math:pow(16, KeyLength),%so the total number of things we could store is less than what the keylength can handle.
     Children = [
 		{accounts_sup, {trie_sup, start_link, [constants:account_size(), KeyLength, constants:account_size(), accounts, Amount, hd]}, permanent, 5000, supervisor, [trie_sup]},
 		{channels_sup, {trie_sup, start_link, [constants:channel_size(), KeyLength, constants:channel_size(), channels, Amount, hd]}, permanent, 5000, supervisor, [trie_sup]},

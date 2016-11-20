@@ -81,9 +81,11 @@ digest(Txs, Channels, Accounts, Variables, Height, BlockAccountUpdates) ->
 		       fun(X) -> account:id(X) end),
     VU = reduce(fun(X, Y) -> variables:combine_updates(X, Y) end,
 		VariableUpdates),
-    {apply_updates(CU, Channels, channels),
-     apply_updates(AU, Accounts, accounts),
-     apply_updates(VU, Variables, variables)}.
+    Out = lists:map(fun({A, B, C}) -> apply_updates(A, B, C) end,
+	[{CU, Channels, channels},
+	 {AU, Accounts, accounts},
+	 {VU, Variables, variables}]),
+    list_to_tuple(Out).
 digest2(Txs, Channels, Accounts, Variables, Height) ->    
     digest3(Txs, Channels, Accounts, Variables, [], [], [], Height).
 digest3([], _, _, _, CU, AU, VU, _) -> {CU, AU, VU};

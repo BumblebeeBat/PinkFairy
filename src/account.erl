@@ -1,5 +1,6 @@
 -module(account).
--export([serialize/1,deserialize/1,combine_updates/2,apply_update/3,new_account/4,new_update/5,nonce/1, test/0]).
+-export([serialize/1,deserialize/1,combine_updates/2,apply_update/3,new_account/5,new_update/5,nonce/1,overwrite/3, test/0]).
+
 
 -record(acc, {balance = 0, %amount of money you have
 	      nonce = 0, %increments with every tx you put on the chain. 
@@ -12,8 +13,8 @@
 		 height, 
 		 revealed}).
 %revealed is the most recently revealed entropy. Every revealed entropy needs to be the inverse hash of the previously revealed entropy
-new_account(Balance, Nonce, Height, Revealed) ->
-    #acc{balance = Balance, nonce = Nonce, height = Height, revealed = Revealed}.
+new_account(Addr, Balance, Nonce, Height, Revealed) ->
+    #acc{addr = Addr, balance = Balance, nonce = Nonce, height = Height, revealed = Revealed}.
 new_update(Id, DBalance, Nonce, Height, Revealed) ->
     #update{id = Id, balance = DBalance, nonce = [Nonce], height = Height, revealed = Revealed}.
 nonce(X) -> X#acc.nonce.
@@ -23,17 +24,21 @@ serialize(A) ->
     R = A#acc.revealed,
     Addr = A#acc.addr,
     SizeR = size(R),
-    SizeR = merkle_constants:hash_depth(),
+    SizeR = hash:hash_depth(),
     SizeAddr = size(Addr),
-    SizeAddr = merkle_constants:hash_depth(),
+    SizeAddr = hash:hash_depth(),
     Nbits = constants:account_nonce_bits(),
     AP = constants:account_padding(),
-    <<(A#acc.balance):BAL, 
+    Out = <<(A#acc.balance):BAL, 
       (A#acc.nonce):(Nbits), 
       (A#acc.height):HEI,
       (R)/binary,
       Addr/binary,
-      0:AP>>.
+	    0:AP>>,
+    Size = size(Out),
+    Size = constants:account_size() div 8,
+    Out.
+    
 
 deserialize(A) ->
     BAL = constants:balance_bits(),
@@ -103,7 +108,10 @@ hash_chain([X]) -> X;
 hash_chain([A|[B|T]]) -> 
     A = hash:doit(B),
     hash_chain([B|T]).
-
+overwrite(Root, Account, ID) ->
+    Balance = Account#acc.balance,
+    M = account:serialize(Account),
+    trie:overwrite(ID, M, Root, Balance, accounts).
 
 test() ->
     H1 = hash:doit(1),
