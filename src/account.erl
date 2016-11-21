@@ -1,5 +1,5 @@
 -module(account).
--export([serialize/1,deserialize/1,combine_updates/2,apply_update/3,new_account/5,new_update/5,nonce/1,overwrite/3, test/0]).
+-export([serialize/1,deserialize/1,combine_updates/2,apply_update/3,new_account/5,new_update/5,nonce/1,overwrite/3,write/2, test/0]).
 
 
 -record(acc, {balance = 0, %amount of money you have
@@ -108,6 +108,10 @@ hash_chain([X]) -> X;
 hash_chain([A|[B|T]]) -> 
     A = hash:doit(B),
     hash_chain([B|T]).
+write(Root, Account) ->
+    Balance = Account#acc.balance,
+    M = account:serialize(Account),
+    trie:put(M, Root, Balance, accounts).
 overwrite(Root, Account, ID) ->
     Balance = Account#acc.balance,
     M = account:serialize(Account),

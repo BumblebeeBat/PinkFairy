@@ -23,10 +23,10 @@ init([Amount]) ->
     KeyLength = 5,% round(math:pow(16, keylength
     true = Amount < math:pow(16, KeyLength),%so the total number of things we could store is less than what the keylength can handle.
     Children = [
-		{accounts_sup, {trie_sup, start_link, [constants:account_size(), KeyLength, constants:account_size(), accounts, Amount, hd]}, permanent, 5000, supervisor, [trie_sup]},
-		{channels_sup, {trie_sup, start_link, [constants:channel_size(), KeyLength, constants:channel_size(), channels, Amount, hd]}, permanent, 5000, supervisor, [trie_sup]},
-		{variables_sup, {trie_sup, start_link, [constants:variable_size(), KeyLength, constants:channel_size(), variables, constants:many_variables(), hd]}, permanent, 5000, supervisor, [trie_sup]},
-		{census_sup, {trie_sup, start_link, [constants:vote_tx_size(), KeyLength, constants:channel_size(), census, Amount, hd]}, permanent, 5000, supervisor, [trie_sup]}
+		{accounts_sup, {trie_sup, start_link, [constants:balance_bits() div 8, KeyLength, constants:account_size() div 8, accounts, Amount, hd]}, permanent, 5000, supervisor, [trie_sup]},
+		{channels_sup, {trie_sup, start_link, [0, KeyLength, constants:channel_size() div 8, channels, Amount, hd]}, permanent, 5000, supervisor, [trie_sup]},
+		{variables_sup, {trie_sup, start_link, [0, KeyLength, constants:variable_size() div 8, variables, constants:many_variables(), hd]}, permanent, 5000, supervisor, [trie_sup]},
+		{census_sup, {trie_sup, start_link, [0, KeyLength, constants:vote_tx_size() div 8, census, Amount, hd]}, permanent, 5000, supervisor, [trie_sup]}
 	       ] ++ child_maker(?keys),
     {ok, { {one_for_one, 5, 10}, Children} }.
 

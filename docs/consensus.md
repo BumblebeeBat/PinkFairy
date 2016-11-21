@@ -55,4 +55,32 @@ The solution to this has 2 parts:
 2) We need to use weak subjectivity. You go to someone who sells stuff in exchange for the currency, and you find out which fork has more valuable currency.
 The more valuable fork is the one worth following.
 There needs to be a way to give a roothash to your node so that your node will only download forks that include that roothash as an acestor.
-Because of (1), at most you only need to enter a roothash once per 24 hour period. 
+Because of (1), at most you only need to enter a roothash once per 24 hour period.
+
+When there is no bribe to participate in an attack, the nash square would look like this:
+
+C is how many coins the user has. R is how much value the coins will lose if the attack succeeds. P is the probability that the attack succeeds. e is how much more likely the attack is to succeed if you participate.
+
+__________________ Attack succeeds_______Attack fails_____
+Attack ___________ - C * R * (P+e) __________ 0
+Dont Attack ______ - C * R * P ______________ 0
+
+There is a slight incentive to not attack = CRe.
+
+During a bribery attack, the nash square would look like this:
+
+B is the size of the bribe.
+
+______________ Attack succeeds_______Attack fails_____
+Attack _______ (B - (C*R)) * (P+e) _______ B * (1 - P - e)
+Dont Attack __ -(C*R) * P ________________ 0
+
+There is a large incentive to attack = (e * (B - (C*R))) + (B*P) + (B * (1 - P - e)) = eB - eCR +BP + B - BP - Be = B - eCR
+
+If we have a counter-bribe to stop the attack, it would look like this:
+
+_____________ Attack succeeds _______ Attack fails ____
+Attack ______ (B - (C*R)) * (P+e) ______ B * (1 - P - e)
+Dont Attack _ (B - (C*R)) * P __________ B * (1 - P)
+
+There is a small incentive to not attack = - BP - Be + CRP + CRe - B + BP + Be + BP - CRP + B - BP = CRe

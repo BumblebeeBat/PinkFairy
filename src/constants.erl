@@ -45,8 +45,7 @@ first_acc_root() ->
     %start with the empty account trie. Insert the initial accounts.
     Revealed = hash:doit(1),
     Acc = account:new_account(first_addr(), initial_coins(), 0, 0, Revealed),
-    ID = 0,
     Root = 0,
-    account:overwrite(Root, Acc, ID).
+    account:write(Root, Acc).
     
     
