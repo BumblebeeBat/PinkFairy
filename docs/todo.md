@@ -40,3 +40,29 @@ At all times you must have at least 1/2 as much money as the most you had in the
 There is a vote-flag in your account. If your vote flag has been off for the last finality period, then you can completely drain your account at once.
 If your vote flag is off, then you cannot vote.
 If your vote transaction is selected, then we need to reward you. Otherwise the nash equilibrium would be to not vote.
+
+
+
+
+
+
+About the oracle:
+We should make the vote transactions different from the oracle transactions.
+That way we can reward users for keeping up with the oracle.
+Since users are rewarded for doing the oracle, they will want to log on frequently to get this reward.
+Every time they log on, their wallet also makes a consensus vote transaction automatically.
+
+This means we can have the time between oracle voting and oracle deciding be a shorter period than consensus voting and consensus deciding.
+
+So users won't have their money locked in channel contracts for such a long time.
+
+We want everyone to have an incentive to come online, so we should let everyone vote in the oracle and have the potential to be rewarded.
+
+We can't use the fork choice rule to incentivize the block creator to include as many oracle votes into the vote tree as possible, so oracle votes need 2 fees. One to the block creator of the block who included it on-chain, and one to the block creator who included it into the oracle vote tree.
+These fees only get paid if you were selected as an on-chain judge. Your reward for being a judge is bigger than the sum of the fees.
+12:48
+an hour ago
+Zack
+But the oracle won't necessarily be used every day. Only if someone lies.
+
+So Im not sure if we can depend on it as an incentive to get people online. Maybe someday when the network has a lot of traffic.
