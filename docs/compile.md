@@ -1,13 +1,7 @@
-First, make sure you have erlang installed. Version 18 is prefered, but older versions will probably work. Here is one way to download it: http://www.erlang.org/download.html , here are erlang install instructions: http://www.erlang.org/doc/installation_guide/INSTALL.html
-
 For ubuntu, I needed to install dependencies:
 
 ```
-sudo apt-get install libncurses5-dev
-sudo apt-get install libssl-dev
-sudo apt-get install unixodbc-dev
-sudo apt-get install g++
-sudo apt-get install git
+sudo apt-get install erlang libncurses5-dev libssl-dev unixodbc-dev g++ git erlang-base-hipe
 ```
 Next, download Pink Fairy
 
